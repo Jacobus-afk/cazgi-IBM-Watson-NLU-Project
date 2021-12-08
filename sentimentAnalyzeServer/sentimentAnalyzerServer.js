@@ -124,7 +124,29 @@ app.get("/text/emotion", (req,res) => {
 });
 
 app.get("/text/sentiment", (req,res) => {
-    return res.send("text sentiment for "+req.query.text);
+    let textToAnalyze = req.query.text
+    const analyzeParams = 
+    {
+        "text": textToAnalyze,
+        "features": {
+            "keywords": {
+                "sentiment": true,
+                "limit": 1
+            }
+        }
+    }
+    
+    const naturalLanguageUnderstanding = getNLUInstance();
+    
+    naturalLanguageUnderstanding.analyze(analyzeParams)
+    .then(analysisResults => {
+        //Retrieve the sentiment and return it as a formatted string
+
+        return res.send(analysisResults.result.keywords[0].sentiment,null,2);
+    })
+    .catch(err => {
+        return res.send("Could not do desired operation "+err);
+    });
 });
 
 let server = app.listen(8080, () => {
